@@ -2,74 +2,59 @@ import React, { useEffect, useState } from 'react'
 import Frame from './Frame'
 import Student from './Student'
 import SearchBar from './SearchBar'
+
 const Students = () => {
     const [data, setData] = useState([])
-
-    const [filterContent, setFilterContent] = useState([]);
-    const [nameFilter, setNameFilter] = useState([]);
-    const [tagFilter, setTagFilter] = useState([]);
+    const [searchContent, setSearchContent] = useState([]);
+    const [nameSearch, setNameSearch] = useState([]);
+    const [tagSearch, setTagSearch] = useState([]);
 
     const searchNameFunction = (name) => {
-        let newNameFilter = [];
+        let newNameSearch = [];
         data.map(student => {
             const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
             if (fullName.includes(name)) {
-                newNameFilter.push(student);
+                newNameSearch.push(student);
             }
             return fullName.includes(name)
         });
-        let contentFilter = [];
-        tagFilter.map(student => {
+        let contentSearch = [];
+        tagSearch.map(student => {
             const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
             if (fullName.includes(name)) {
-                contentFilter.push(student);
+                contentSearch.push(student);
             }
             return fullName.includes(name)
         });
-        setFilterContent(contentFilter);
-        setNameFilter(newNameFilter);
+        setSearchContent(contentSearch);
+        setNameSearch(newNameSearch);
     }
 
-    const searchTagFunction = (tag) => {
-        if (tag) {
-            let newTagFilter = [];
-            let newContentFilter = [];
+    const searchTagFunction = (myTag) => {
+        if (myTag) {
+            let newTagSearch = [];
+            let newContentSearch = [];
             data.map(student => {
-                let tagged = false;
-                student.tags.map(tag => {
-                    if (tag.includes(tag)) {
-                        tagged = true;
-                    }
-                    
-                });
-                if (tagged) {
-                    newTagFilter.push(student);
+                if (student.tags.join(',').includes(myTag)) {
+                    newTagSearch.push(student);
                 }
-                return tagged;
-                
-            });
+                return student.tags.join(',').includes(myTag)
 
-            filterContent.map(student => {
-                let tagged = false;
-                student.tags.map(tag => {
-                    if (tag.includes(tag)) {
-                        tagged = true;
-                    }
-                    
-                });
-                if (tagged) {
-                    newContentFilter.push(student);
-                }
-                
             });
-            setFilterContent(newContentFilter);
-            setTagFilter(newTagFilter);
+            nameSearch.map(student => {
+                if (student.tags.join(',').includes(myTag)) {
+                    newContentSearch.push(student);
+                }
+                return student.tags.join(',').includes(myTag)
+
+            });
+            setSearchContent(newContentSearch);
+            setTagSearch(newTagSearch);
         } else {
-            setFilterContent(nameFilter);
-            setTagFilter(data);
+            setSearchContent(nameSearch);
+            setTagSearch(data);
         }
     }
-
 
     useEffect(() => {
         fetch(`https://api.hatchways.io/assessment/students`)
@@ -83,34 +68,28 @@ const Students = () => {
                     return newData
                 })
                 setData(newData);
-                setFilterContent(newData);
-                setNameFilter(newData);
-                setTagFilter(newData);
+                setSearchContent(newData);
+                setNameSearch(newData);
+                setTagSearch(newData);
             });
     }, []);
-
-
 
     return (
         <Frame >
             <SearchBar searchFunction={searchNameFunction} content={`name`} />
             <SearchBar searchFunction={searchTagFunction} content={`tag`} />
-
             <ul className="overflow-y-auto" style={{ height: "480px" }}>
-
-                {filterContent.map((student, index) => {
+                {searchContent.map((student) => {
                     return (
                         <div key={student.id}>
                             < Student
                                 key={student.id}
-                                index={index}
                                 student={student}
                             />
                         </div>
                     )
                 })}
             </ul>
-
         </Frame>
     )
 }
